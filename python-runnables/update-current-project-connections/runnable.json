@@ -45,7 +45,7 @@
        - FILE : raw data (as a python string) that will be stored in a temp file by DSS
        - URL : a url
      */
-    "resultType": "RESULT_TABLE",
+    "resultType": "HTML",
 
     /* label to use when the runnable's result is not inlined in the UI (ex: for urls) */
     "resultLabel": "Connections for update",
