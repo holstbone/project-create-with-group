@@ -98,4 +98,3 @@ class MyRunnable(Runnable):
         project.set_permissions(project_permissions)
 
         return "Project duplicated successfully with project key: {}.".format(project_key)
-        
