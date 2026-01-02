@@ -80,15 +80,24 @@ class MyRunnable(Runnable):
             upd = updated_connection_info['params']['dkuProperties']
             
             try:
-                if (len(orig)>0):
-                    orig=orig[0]["value"]
-                    #print('ORIGINAL', delim.join(sorted(orig.split(delim))) )
+                allowed_in_projects_property = next(
+                (prop for prop in orig if prop['name'] == 'dku.security.allowedInProjects'), None)
 
-                if (len(orig)>0 and len(upd)>0):
-                    upd=upd[0]["value"]
-                    if (delim.join(sorted(orig.split(delim))) != delim.join(sorted(upd.split(delim)))):
-                        action="UPDATE"
-                elif (len(orig)==0 and len(upd)>0):
+                if (allowed_in_projects_property):
+                    orig=allowed_in_projects_property["value"]
+                    #logging.info('ORIGINAL', delim.join(sorted(orig.split(delim))) )
+
+                    allowed_in_projects_property = next(
+                        (prop for prop in upd if prop['name'] == 'dku.security.allowedInProjects'), None)
+
+                    if (allowed_in_projects_property):
+                        if (len(orig)>0 and len(upd)>0):
+                            upd=allowed_in_projects_property["value"]
+                            if (delim.join(sorted(orig.split(delim))) != delim.join(sorted(upd.split(delim)))):
+                                action="UPDATE"
+                        elif (len(orig)==0 and len(upd)>0):
+                            action="UPDATE"
+                else:
                     action="UPDATE"
             except Exception as exp:
                 logging.info("Original {} ... Updated {}".format(str(orig),str(upd)))
@@ -96,20 +105,23 @@ class MyRunnable(Runnable):
             
             if not is_dry_run:
                 if action=="UPDATE":
-                    status="UPDATED"
                     logging.info("Updating connection {}".format(str(connection_name)))
                     connection.set_definition(updated_connection_info)
+                    status="UPDATED"
             
             conn_row["action"]=action
             conn_row["status"]=status
+            conn_row["details"]=connection_dict['detailsReadability']['readableBy']
+            conn_row["allowed groups"]=len(connection_dict['detailsReadability']['allowedGroups'])
             conn_dict.append(conn_row)
         
         
-        results_df = pd.DataFrame(conn_dict, columns=["Name", "action","status"])
+        #results_df = pd.DataFrame(conn_dict, columns=["Name", "action","status"])
         
         # Pass results to result table
-        for index, row in results_df.iterrows():
-            result_table.add_record(list(row))
+        #for index, row in results_df.iterrows():
+        #    result_table.add_record(list(row))
         
-        return result_table
+        #return result_table
+        return pd.DataFrame(conn_dict).to_html()
         
