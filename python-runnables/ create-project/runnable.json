@@ -1,0 +1,32 @@
+{
+    "meta": {
+        "label": "New Project with Group access",
+        "description": "Select a group for access",
+        "icon": "icon-lock"
+    },
+
+    "impersonate": false,
+
+    "paramsPythonSetup": "get_user_groups.py",
+    "params": [
+        {
+            "name": "projectName",
+            "label": "Project name",
+            "type": "STRING",
+            "mandatory": true
+        },
+        {
+            "name": "groupName",
+            "label": "Group name for access",
+            "type": "SELECT",
+            "getChoicesFromPython": true
+        }
+      
+    ],
+
+    "resultType": "JSON_OBJECT",
+
+    "macroRoles": [
+        {"type": "PROJECT_CREATOR"}
+    ]
+}
