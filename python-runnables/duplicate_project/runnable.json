@@ -1,0 +1,73 @@
+/* This file is the descriptor for the python runnable duplicate-project */
+{
+    "meta": {
+        "label": "Duplicate Project",
+        "description": "Duplicate current project.",
+        "icon": "icon-fullscreen" // https://fontawesome.com/v3.2.1/icons/
+    },
+
+    /* whether the runnable's code is untrusted */
+    "impersonate": false,
+
+
+    /* params: for the full list and for more details, see the documentation: https://doc.dataiku.com/dss/latest/plugins/reference/params.html */
+    "paramsPythonSetup": "compute_folders.py",
+    "params": [
+        {
+            "name": "project_name",
+            "label": "Project Name",
+            "type": "STRING",
+            "mandatory": true
+        },
+        {
+            "name": "project_key",
+            "label": "Project Key",
+            "type": "STRING",
+            "description": "(optional)",
+            "mandatory": false
+        },
+        {
+            "type": "SELECT",
+            "name": "project_folder_id",
+            "label": "Project Folder",
+            "getChoicesFromPython": true
+        },
+        {
+            "name": "separator",
+            "label": "Advanced Options",
+            "type": "SEPARATOR"
+        },
+        {
+            "type": "SELECT",
+            "name": "duplication_mode",
+            "label": "Duplication Mode",
+            "defaultValue": "UPLOADS_ONLY",
+            "selectChoices": [
+                { "value": "NONE", "label": "Flow Only"},
+                { "value": "UPLOADS_ONLY", "label": "Uploaded Files"},
+                { "value": "MINIMAL", "label": "Required Inputs"},
+                { "value": "FULL", "label": "Full Duplication"},
+                { "value": "SHARING", "label": "Input Sharing"}
+            ]
+        },
+        {
+            "name": "export_analysis_models",
+            "label" : "Duplicate all analysis models data",
+            "type": "BOOLEAN",
+            "defaultValue": true
+        },
+        {
+            "name": "export_saved_models",
+            "label" : "Duplicate all saved models data",
+            "type": "BOOLEAN",
+            "defaultValue": true
+        }
+    ],
+
+    /* list of required permissions on the project to see/run the runnable */
+    "permissions": ["WRITE_CONF"],
+    "requiresGlobalAdmin": false,
+
+    /* what the code's run() returns: */
+    "resultType": "HTML"
+}
