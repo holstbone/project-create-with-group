@@ -3,7 +3,7 @@
     "id": "project-create-with-group",
 
     // It is highly recommended to use Semantic Versioning
-    "version": "1.1.1",
+    "version": "1.2.2",
 
     // Meta data for display purposes:
     "meta": {
@@ -11,15 +11,15 @@
         "label": "Create Project with Group",
 
         // description: longer string to help end users understand what this plugin does
-        "description": "Create a new project with access for a group",
+        "description": "Create a new project with access for a group. Includes tools for connections management.",
 
-        "author": "Jonathan Sill",
+        "author": "admin",
 
         // icon: must be one of the FontAwesome 3.2.1 icons, complete list here at https://fontawesome.com/v3.2.1/icons/
         "icon": "icon-group",
 
         // List of tags for filtering the list of plugins
-        "tags": [],
+        "tags": [], //for example: ["Machine Learning", "NLP"]
 
         // URL where the user can learn more about the plugin
         "url": "",
