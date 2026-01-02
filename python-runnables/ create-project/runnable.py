@@ -30,26 +30,22 @@ class MyRunnable(Runnable):
 
         # The macro must first perform the actual project creation.
         # We pass the end-user identity as the owner of the newly-created project
-        print("Creating project")
         admin_client.create_project(project_key, self.config["projectName"], 'admin')
-
-        print("Configuring project")
         project = admin_client.get_project(project_key)
         project_metadata = project.get_metadata()
-        project_metadata['tags'] = ['%s' %(self.config["groupName"]),'project-creation-macro']
+        project_metadata['tags'] = [self.config["groupName"],'project-creation-macro']
         
         # Custom Field to use when creating connections
-        project_metadata['customFields'] ={'groupName':'%s' %(self.config["groupName"])}
+        project_metadata['customFields'] ={'groupName': self.config["groupName"]}
         project.set_metadata(project_metadata)
 
         # Move the project to the current project folder, passed in the config as _projectFolderId
         project.move_to_folder(admin_client.get_project_folder(self.config['_projectFolderId']))
 
-        project_permissions = project.get_permissions()
-
         # Set Project Permissions 
+        project_permissions = project.get_permissions()
         permission = {
-            'group': '%s' % self.config["groupName"],
+            'group': self.config["groupName"],
             'admin': False,
             'writeProjectContent': True,
             'readProjectContent': True,
@@ -59,20 +55,27 @@ class MyRunnable(Runnable):
             'manageExposedElements': True
         }
         project_permissions['permissions'].append(permission)
-        
         project.set_permissions(project_permissions)
         
-        #TODO Add ProjectKey to all of the connection with the name of the role. 
+        # Add ProjectKey to all of the connection with the name of the role
         role_names = [item['group'] for item in project_permissions["permissions"]]
+        project_utils.add_pkeys_to_connections(admin_client, project_key, role_names)
 
-        for connection_name in admin_client.list_connections():
-            connection = admin_client.get_connection(connection_name)
-            connection_dict = connection.get_definition()
-            updated_connection_info = project_utils.update_connection_properties(connection_dict, role_names, project_key)
-            connection.set_definition(updated_connection_info)
-
+        #Change default connection in the project settings
+        groupName = self.config["groupName"]
+        groupName_list = ["sandbox"]
+        i = 2
+        while i < len(groupName.split("_"))-1:
+            groupName_list.append(groupName.split("_")[i].lower())
+            i += 1
+        groupName_end = "-".join(groupName_list)
+        settings = project.get_settings()
+        for c in admin_client.list_connections_names(connection_type = "all"):
+            if c.startswith(groupName) and c.endswith(groupName_end):
+                settings.get_raw()['settings']['datasetsCreationSettings']['useGlobal']=False
+                settings.get_raw()['settings']['datasetsCreationSettings']['forcedPreferedConnection']=c
+                settings.get_raw()['settings']['datasetsCreationSettings']['preferedStorageFormats']="PARQUET_HIVE,CSV_ESCAPING_NOGZIP_FORHIVE,CSV_EXCEL_GZIP"
+                settings.save()
+            
         # A project creation macro must return a JSON object containing a `projectKey` field with the newly-created
-        # project key
         return json.dumps({"projectKey": project_key})
-    
-    
