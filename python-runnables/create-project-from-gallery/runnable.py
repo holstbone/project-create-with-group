@@ -159,4 +159,3 @@ class MyRunnable(Runnable):
             connection.set_definition(updated_connection_info)
         '''
         return json.dumps({"projectKey": project_key})
-        
