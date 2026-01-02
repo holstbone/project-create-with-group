@@ -1,4 +1,8 @@
 import dataikuapi
+from joblib import Parallel, delayed
+from joblib.externals.loky import get_reusable_executor
+import numpy as np
+import multiprocessing
 
 def remove_dataset_ref(admin_client, project_key):
     p = admin_client.get_project(project_key)
@@ -196,20 +200,15 @@ def is_usermapping_configured(admin_client, project_key):
     else:
         return False
 
-
-def update_connection_properties(connection_dict, project_allowed_groups, project_name):
+def update_connection_properties(connection_dict, project_allowed_groups, project_name, property_name='dku.security.allowedInProjects'):
     # Extract the 'dkuProperties' list from the connection_dict
-    
-    if ('dkuProperties' not in connection_dict['params']):
-        connection_dict['params']['dkuProperties']={}
-    
-    dku_properties = connection_dict['params']['dkuProperties']
+    dku_properties = connection_dict['params'].get('dkuProperties', [])
     connection_allowed_groups = connection_dict['detailsReadability']['allowedGroups']
     # Check if the 'roleName' property exists in dkuProperties
     if any(item in project_allowed_groups for item in connection_allowed_groups):
         # Check if 'dku.security.allowedInProjects' property exists
         allowed_in_projects_property = next(
-            (prop for prop in dku_properties if prop['name'] == 'dku.security.allowedInProjects'), None)
+            (prop for prop in dku_properties if prop['name'] == property_name), None)
         #print(connection_dict)
         if allowed_in_projects_property:
             project_list = allowed_in_projects_property['value']
@@ -218,8 +217,7 @@ def update_connection_properties(connection_dict, project_allowed_groups, projec
             new_project_set = ','.join(project_set)
             allowed_in_projects_property['value'] = new_project_set
         else:
-            # Create 'dku.security.allowedInProjects' property with 'my_project_name' value
-            dku_properties.append({'name':'dku.security.allowedInProjects', 'value':project_name, 'secret': False})
+            dku_properties.append({'name':property_name, 'value':project_name, 'secret': False})
 
     updated_connection_info = connection_dict
     return updated_connection_info
@@ -245,3 +243,27 @@ def update_project_permissions(project):
                   "manageDashboardAuthorizations": True, "manageExposedElements": True}
 
     return project_permissions['permissions'].append(permission)
+
+
+# -----------------------------------------------------------------------------
+# Add projectkeys to all connections with the name of the role
+def add_pkeys_to_connections_parallel(admin_client, project_key, role_names, connections):
+    for connection_name in connections:
+        connection = admin_client.get_connection(connection_name)
+        connection_dict = connection.get_definition()
+        updated_connection_info = update_connection_properties(connection_dict, role_names, project_key)
+        connection.set_definition(updated_connection_info)
+    return
+
+def add_pkeys_to_connections(admin_client, project_key, role_names):
+    n_jobs = multiprocessing.cpu_count() - 1
+    connections_l = admin_client.list_connections_names(connection_type = "all")
+    arrays = np.array_split(connections_l, n_jobs)
+    results = Parallel(n_jobs=n_jobs)\
+        (delayed(add_pkeys_to_connections_parallel)\
+        (admin_client, project_key, role_names, connections) for connections in arrays)
+    get_reusable_executor().shutdown(wait=True)
+    return
+
+# -----------------------------------------------------------------------------
+# EOF
