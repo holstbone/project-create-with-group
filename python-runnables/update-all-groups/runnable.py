@@ -45,4 +45,3 @@ class MyRunnable(Runnable):
                 connection.set_definition(updated_connection_info)
                 
         return "All Project Updated"
-        
