@@ -1,0 +1,47 @@
+{
+    "meta": {
+        "label": "Duplicate Project from Gallery with Group access",
+        "description": "Select a group for access",
+        "icon": "icon-lock"
+    },
+
+    "impersonate": false,
+
+    "paramsPythonSetup": "get_user_groups_projects.py",
+    "params": [
+        {
+            "name": "galleryProjectName",
+            "label": "Gallery Project Name",
+            "type": "SELECT",
+            "getChoicesFromPython": true,
+            "mandatory": true
+        },
+        {
+            "name": "groupName",
+            "label": "Group name for access",
+            "type": "SELECT",
+            "getChoicesFromPython": true,
+            "mandatory": true
+        }, 
+        {
+            "name": "project_name",
+            "label": "New Project Name",
+            "type": "STRING",
+            "mandatory": true
+        },
+        {
+            "name": "project_key",
+            "label": "Project Key",
+            "type": "STRING",
+            "description": "(optional)",
+            "mandatory": false
+        }
+      
+    ],
+
+    "resultType": "JSON_OBJECT",
+
+    "macroRoles": [
+        {"type": "PROJECT_CREATOR"}
+    ]
+}
