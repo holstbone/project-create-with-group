@@ -1,0 +1,38 @@
+/* This file is the descriptor for the python runnable duplicate-project */
+{
+    "meta": {
+        "label": "Duplicate Project To Gallery",
+        "description": "Duplicate current project to a folder and make role-less. Data is not included in the duplication.",
+        "icon": "icon-fullscreen" // https://fontawesome.com/v3.2.1/icons/
+    },
+
+    /* whether the runnable's code is untrusted */
+    "impersonate": false,
+
+
+    /* params: for the full list and for more details, see the documentation: https://doc.dataiku.com/dss/latest/plugins/reference/params.html */
+    "paramsPythonSetup": "compute_folders.py",
+    "params": [
+        {
+            "name": "project_name",
+            "label": "Project Name",
+            "type": "STRING",
+            "mandatory": true,
+            "defaultValue":""
+        },
+        {
+            "name": "project_key",
+            "label": "Project Key",
+            "type": "STRING",
+            "description": "(optional)",
+            "mandatory": false
+        }
+    ],
+
+    /* list of required permissions on the project to see/run the runnable */
+    "permissions": ["WRITE_CONF"],
+    "requiresGlobalAdmin": false,
+
+    /* what the code's run() returns: */
+    "resultType": "HTML"
+}
