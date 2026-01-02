@@ -19,3 +19,5 @@ def do(payload, config, plugin_config, inputs):
     get_folder_structure(root_folder, folders_list)
     
     return {"choices": folders_list}
+    
+    return {"choices": folders_list}
